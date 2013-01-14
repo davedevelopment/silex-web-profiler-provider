@@ -1,0 +1,19 @@
+{
+    "require": {
+        "silex/silex": "1.0.*@dev",
+        "symfony/web-profiler-bundle": "2.2.*@dev",
+        "symfony/twig-bridge": "2.2.*",
+        "symfony/stopwatch": "2.2.*"
+    },
+    "require-dev": {
+        "symfony/security": "2.2.*",
+        "symfony/security-bundle": "2.2.*",
+        "symfony/yaml": "2.2.*"
+    },
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-0": {
+            "DaveDevelopment\\WebProfilerProvider": "src"
+        }
+    }
+}
