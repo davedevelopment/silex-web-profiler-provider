@@ -46,13 +46,57 @@ class WebProfilerProvider implements ServiceProviderInterface, ControllerProvide
             );
 
             /*
-             * Doctrine 
+             * Doctrine is problematic:
              *
-             * Nothing doing yet, the doctrine data collector requires a 
-             * ManagerRegistry, which we don't have in Silex right now
+             * The controller for the explain has a hard dependency on ContainerAware
+             * The templates use symfony style references and use a function 
+             * called controller, don't know where that is
              *
+            if (isset($app['dbs'])) {
+
+                $collectors["db"] = array(
+                    "db", 
+                    "@Doctrine/Collector/db.html.twig", 
+                    "web_profiler.data_collector.doctrine",
+                );
+
+                $app['web_profiler.data_collector.doctrine.registry'] = $app->share(function ($app) {
+                    return $registry = new DoctrineManagerRegistry(
+                        "name",
+                        array_combine($app['dbs']->keys(), $app['dbs']->keys()),
+                        array(),
+                        'default',
+                        'default',
+                        'Doctrine\ORM\Proxy\Proxy'
+                    );
+                });
+
+                $app['web_profiler.data_collector.doctrine'] = $app->share(function ($app) {
+
+                    $collector = new \Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector(
+                        $app['web_profiler.data_collector.doctrine.registry']
+                    );
+
+                    foreach ($app['dbs']->keys() as $id) {
+                        $logger = new \Doctrine\DBAL\Logging\DebugStack();
+                        $collector->addLogger($id, $logger);
+                        $app['dbs.config'] = $app->share($app->extend('dbs.config', function ($config) use ($logger, $id) {
+                            $config[$id]->setSqlLogger($logger);
+                            return $config;
+                        }));
+                    }
+
+                    return $collector;
+                });
+
+                $app['twig.loader.filesystem'] = $app->share($app->extend('twig.loader.filesystem', function ($loader) {
+                    $reflClass = new \ReflectionClass("Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector");
+                    $loader->addPath(dirname(dirname($reflClass->getFileName())) . "/Resources/views", "Doctrine");
+                    return $loader;
+                }));
+            }
              */
-            
+        
             /*
              * Security is problematic
              *
@@ -79,6 +123,11 @@ class WebProfilerProvider implements ServiceProviderInterface, ControllerProvide
                     return new \Symfony\Bundle\SecurityBundle\DataCollector\SecurityDataCollector($app['web_profiler.data_collector.security.lazy_context']);
                 });
 
+                $app['twig.loader.filesystem'] = $app->share($app->extend('twig.loader.filesystem', function ($loader) {
+                    $reflClass = new \ReflectionClass("Symfony\Bundle\SecurityBundle\DataCollector\SecurityDataCollector");
+                    $loader->addPath(dirname(dirname($reflClass->getFileName())) . "/Resources/views", "Security");
+                    return $loader;
+                }));
             }
              */
 

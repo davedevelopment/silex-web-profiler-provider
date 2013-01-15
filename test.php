@@ -14,6 +14,12 @@ $app['debug'] = true;
 $app->register(new Silex\Provider\TwigServiceProvider());
 $app->register(new Silex\Provider\UrlGeneratorServiceProvider());
 $app->register(new Silex\Provider\ServiceControllerServiceProvider());
+$app->register(new Silex\Provider\DoctrineServiceProvider(), array(
+    'db.options' => array(
+        'driver'   => 'pdo_sqlite',
+        'path'     => __DIR__.'/app.db',
+    ),
+));
 
 $app->register(new Silex\Provider\SecurityServiceProvider(), array(
     'security.firewalls' => array(
@@ -34,14 +40,6 @@ $app->register($wpp);
 $app->mount('/_profiler', $wpp);
 
 $app->get("/", function(Silex\Application $app) {
-
-    /*
-     * Custom timing
-    $app['web_profiler.stopwatch']->start('testing_in_my_controller');
-    sleep(1);
-    $app['web_profiler.stopwatch']->stop('testing_in_my_controller');
-     */
-
     return "<html><body>Hello World</body></html>";
 });
 
