@@ -272,8 +272,6 @@ class WebProfilerProvider implements ServiceProviderInterface, ControllerProvide
              */
             $reflClass = new \ReflectionClass("Symfony\Bundle\WebProfilerBundle\EventListener\WebDebugToolbarListener");
             $loader->addPath(dirname(dirname($reflClass->getFileName())) . "/Resources/views", "WebProfiler");
-            $reflClass = new \ReflectionClass("Symfony\Bundle\SecurityBundle\DataCollector\SecurityDataCollector");
-            $loader->addPath(dirname(dirname($reflClass->getFileName())) . "/Resources/views", "Security");
             return $loader;
         }));
 
