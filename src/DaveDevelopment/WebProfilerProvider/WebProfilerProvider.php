@@ -6,6 +6,11 @@ use Silex\Application;
 use Silex\ServiceProviderInterface;
 use Silex\ControllerProviderInterface;
 use Symfony\Bundle\WebProfilerBundle\EventListener\WebDebugToolbarListener;
+use Symfony\Component\HttpKernel;
+use Symfony\Bundle\WebProfilerBundle;
+use Symfony\Bundle\SecurityBundle;
+use Doctrine\Bundle\DoctrineBundle;
+
 
 class WebProfilerProvider implements ServiceProviderInterface, ControllerProviderInterface
 {
@@ -19,7 +24,7 @@ class WebProfilerProvider implements ServiceProviderInterface, ControllerProvide
          */
         $app['web_profiler.profiler_storage.file.dsn'] = "file:" . sys_get_temp_dir() . "/webprofiler";
         $app['web_profiler.profiler_storage.file'] = $app->share(function ($app) {
-            return new \Symfony\Component\HttpKernel\Profiler\FileProfilerStorage(
+            return new HttpKernel\Profiler\FileProfilerStorage(
                 $app['web_profiler.profiler_storage.file.dsn']
             );
         });
@@ -73,7 +78,7 @@ class WebProfilerProvider implements ServiceProviderInterface, ControllerProvide
 
                 $app['web_profiler.data_collector.doctrine'] = $app->share(function ($app) {
 
-                    $collector = new \Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector(
+                    $collector = new DoctrineBundle\DataCollector\DoctrineDataCollector(
                         $app['web_profiler.data_collector.doctrine.registry']
                     );
 
@@ -120,7 +125,7 @@ class WebProfilerProvider implements ServiceProviderInterface, ControllerProvide
                 });
 
                 $app['web_profiler.data_collector.security'] = $app->share(function ($app) {
-                    return new \Symfony\Bundle\SecurityBundle\DataCollector\SecurityDataCollector($app['web_profiler.data_collector.security.lazy_context']);
+                    return new SecurityBundle\DataCollector\SecurityDataCollector($app['web_profiler.data_collector.security.lazy_context']);
                 });
 
                 $app['twig.loader.filesystem'] = $app->share($app->extend('twig.loader.filesystem', function ($loader) {
@@ -135,35 +140,35 @@ class WebProfilerProvider implements ServiceProviderInterface, ControllerProvide
         });
 
         $app['web_profiler.data_collector.router'] = $app->share(function ($app) {
-            return new \Symfony\Component\HttpKernel\DataCollector\RouterDataCollector();
+            return new HttpKernel\DataCollector\RouterDataCollector();
         });
 
         $app['web_profiler.data_collector.logger'] = $app->share(function ($app) {
-            return new \Symfony\Component\HttpKernel\DataCollector\LoggerDataCollector($app['logger']);
+            return new HttpKernel\DataCollector\LoggerDataCollector($app['logger']);
         });
 
         $app['web_profiler.data_collector.config'] = $app->share(function ($app) {
-            return new \Symfony\Component\HttpKernel\DataCollector\ConfigDataCollector();
+            return new HttpKernel\DataCollector\ConfigDataCollector();
         });
 
         $app['web_profiler.data_collector.request'] = $app->share(function ($app) {
-            return new \Symfony\Component\HttpKernel\DataCollector\RequestDataCollector();
+            return new HttpKernel\DataCollector\RequestDataCollector();
         });
 
         $app['web_profiler.data_collector.memory'] = $app->share(function ($app) {
-            return new \Symfony\Component\HttpKernel\DataCollector\MemoryDataCollector();
+            return new HttpKernel\DataCollector\MemoryDataCollector();
         });
 
         $app['web_profiler.data_collector.time'] = $app->share(function ($app) {
-            return new \Symfony\Component\HttpKernel\DataCollector\TimeDataCollector();
+            return new HttpKernel\DataCollector\TimeDataCollector();
         });
 
         $app['web_profiler.data_collector.events'] = $app->share(function ($app) {
-            return new \Symfony\Component\HttpKernel\DataCollector\EventDataCollector();
+            return new HttpKernel\DataCollector\EventDataCollector();
         });
 
         $app['web_profiler.data_collector.exception'] = $app->share(function ($app) {
-            return new \Symfony\Component\HttpKernel\DataCollector\ExceptionDataCollector();
+            return new HttpKernel\DataCollector\ExceptionDataCollector();
         });
 
         /**
@@ -171,7 +176,7 @@ class WebProfilerProvider implements ServiceProviderInterface, ControllerProvide
          */
         $app['web_profiler.profiler'] = $app->share(function ($app) {
             $storage = $app['web_profiler.profiler_storage.' . $app['web_profiler.profiler_storage.type']];
-            $profiler = new \Symfony\Component\HttpKernel\Profiler\Profiler($storage, $app['logger']);
+            $profiler = new HttpKernel\Profiler\Profiler($storage, $app['logger']);
 
             foreach ($app['web_profiler.data_collectors'] as $id => $collector) {
                 $profiler->add($app[$collector[2]]);
@@ -197,7 +202,7 @@ class WebProfilerProvider implements ServiceProviderInterface, ControllerProvide
          * engineering
          */
         $app['web_profiler.controller.profiler'] = $app->share(function ($app) {
-            return new \Symfony\Bundle\WebProfilerBundle\Controller\ProfilerController(
+            return new WebProfilerBundle\Controller\ProfilerController(
                 $app['url_generator'],
                 $app['web_profiler.profiler'],
                 $app['twig'],
@@ -207,7 +212,7 @@ class WebProfilerProvider implements ServiceProviderInterface, ControllerProvide
         });
 
         $app['web_profiler.controller.router'] = $app->share(function ($app) {
-            return new \Symfony\Bundle\WebProfilerBundle\Controller\RouterController(
+            return new WebProfilerBundle\Controller\RouterController(
                 $app['web_profiler.profiler'],
                 $app['twig'],
                 $app['url_matcher'],
@@ -216,7 +221,7 @@ class WebProfilerProvider implements ServiceProviderInterface, ControllerProvide
         });
 
         $app['web_profiler.controller.exception'] = $app->share(function ($app) {
-            return new \Symfony\Bundle\WebProfilerBundle\Controller\ExceptionController(
+            return new WebProfilerBundle\Controller\ExceptionController(
                 $app['web_profiler.profiler'],
                 $app['twig'],
                 $app['debug']
@@ -227,7 +232,7 @@ class WebProfilerProvider implements ServiceProviderInterface, ControllerProvide
          * Listeners
          */
         $app['web_profiler.profiler_listener'] = $app->share(function ($app) {
-            return new \Symfony\Component\HttpKernel\EventListener\ProfilerListener(
+            return new HttpKernel\EventListener\ProfilerListener(
                 $app['web_profiler.profiler'],
                 $app['web_profiler.request_matcher'],
                 false,
@@ -249,7 +254,7 @@ class WebProfilerProvider implements ServiceProviderInterface, ControllerProvide
          * Extensions of other services
          */
         $app['dispatcher'] = $app->share($app->extend('dispatcher', function ($dispatcher, $app) {
-            $tracer = new \Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher(
+            $tracer = new HttpKernel\Debug\TraceableEventDispatcher(
                 $dispatcher, 
                 $app['web_profiler.stopwatch'],
                 $app['logger']
