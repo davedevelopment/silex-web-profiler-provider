@@ -264,6 +264,13 @@ class WebProfilerProvider implements ServiceProviderInterface, ControllerProvide
         }));
 
         $app['twig'] = $app->share($app->extend('twig', function ($twig) {
+            /*
+             * @todo I think the __DIR__ in here is to help show urls to local 
+             * files or something, but I haven't been able to actually see them 
+             * yet....
+             *
+             * Better make it configurable
+             */
             $twig->addExtension(new \Symfony\Bridge\Twig\Extension\CodeExtension("", __DIR__, "utf8"));
             $twig->addExtension(new \Symfony\Bridge\Twig\Extension\YamlExtension());
             return $twig;
