@@ -103,16 +103,8 @@ class WebProfilerProvider implements ServiceProviderInterface, ControllerProvide
              */
         
             /*
-             * Security is problematic
-             *
-             * It requires context, which isn't available until after boot, 
-             * however the profiler requires the collectors, and it's required 
-             * by a subscriber that is instantiated at boot. So it uses a proxy 
-             * for that. 
-             *
-             * The templates also use the symfony way of referencing each other, 
-             * which our twig doesn't understand :(
-             *
+             * If security is enabled and we've got access to the bundle
+             */
             if (isset($app['security']) && class_exists("Symfony\Bundle\SecurityBundle\DataCollector\SecurityDataCollector")) {
                 $collectors["security"] = array(
                     "security", 
@@ -134,7 +126,6 @@ class WebProfilerProvider implements ServiceProviderInterface, ControllerProvide
                     return $loader;
                 }));
             }
-             */
 
             return $collectors;
         });

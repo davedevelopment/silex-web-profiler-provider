@@ -6,15 +6,16 @@
         "symfony/stopwatch": "2.2.*"
     },
     "require-dev": {
-        "symfony/security": "2.2.*",
         "symfony/security-bundle": "2.2.*",
-        "symfony/yaml": "2.2.*",
-        "doctrine/doctrine-bundle": "1.2.*@dev"
+        "symfony/yaml": "2.2.*"
+    },
+    "suggest": {
+        "symfony-security-bundle": "to use the security panel"
     },
     "minimum-stability": "dev",
     "autoload": {
         "psr-0": {
             "DaveDevelopment\\WebProfilerProvider": "src"
         }
-    }
+    },
 }
